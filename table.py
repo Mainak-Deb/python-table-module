@@ -1,10 +1,7 @@
 import csv
-from hashlib import new
 import re
-from tkinter import E
-from zlib import DEF_BUF_SIZE
-
-from cv2 import edgePreservingFilter
+import numpy as np
+import matplotlib.pyplot as plt
 
 class table:
     header=dict()
@@ -12,6 +9,11 @@ class table:
     headlen=dict()
 
     data=[]
+    
+
+
+    
+    
     def __init__(self,head,data=[]) -> None:
         self.header=dict();self.headlen=dict();self.data=[];self.head=[]
         self.head=head
@@ -20,7 +22,6 @@ class table:
         self.data=data
         #print(head,self.header,self.data)
         self.set_headlen()
-
     
     def insert(self,value):
         if(len(value)!=len(self.head)):
@@ -28,7 +29,6 @@ class table:
             return
         else:
             self.data.append(value)
-
 
     def set_headlen(self):
         for i in self.header.keys():
@@ -89,14 +89,12 @@ class table:
                 c+=1
         return c
 
-
     def sum(self,param):
         s=0
         for i in range(len(self.data)):
             if(self.data[i][self.header[param]]!=None):
                 s+=float(self.data[i][self.header[param]])
         return s
-
 
     def max(self,param):
         s=-1*((2^31)-1)
@@ -106,7 +104,6 @@ class table:
                     s=float(self.data[i][self.header[param]])
         return s
 
-
     def min(self,param):
         s=(2^31)-1
         for i in range(len(self.data)):
@@ -115,7 +112,6 @@ class table:
                     s=float(self.data[i][self.header[param]])
         return s
 
-
     def avg(self,param):
         s=0;
         c=self.count(param)
@@ -123,8 +119,6 @@ class table:
             if(self.data[i][self.header[param]]!=None):
                 s+=float(self.data[i][self.header[param]])
         return s/c
-
-
 
     def where(self,condition):
         yha=re.findall(r"<[^<]*>",condition)
@@ -155,9 +149,95 @@ class table:
                  rows.append(self.data[i])
         self.data=rows
 
-
     def self_join(self,r1,r2):
-        pass
+        join=join_methods()
+        sj=join.cross_join([self,r1],[self,r2])
+        return sj
+
+    def pie_plot(self,key):
+        if(key==None):
+            print("specify the key")
+            return
+        elif(len(self.head)!=2):
+            print("pie chart from more than two attribute can't possible")
+            return
+        else:
+            labels=[]
+            for i in range(len(self.data)):
+                labels.append(self.data[i][self.header[key]])
+            print(key)
+            val=None
+            yval=[]
+            for i in self.head:
+                if(i!=key):
+                    val=i
+                   
+            try:
+                for i in range(len(self.data)):
+                    yval.append(float(self.data[i][self.header[val]]))
+                
+            except:
+                print("value is not number")
+                return 
+            
+            y=np.array(yval)
+            # print(labels,yval,y)            
+            plt.pie(y, labels =labels)
+            plt.show() 
+
+    
+    def histogram_plot(self,key):
+        if(key==None):
+            print("specify the key")
+            return
+        elif(len(self.head)!=2):
+            print("pie chart from more than two attribute can't possible")
+            return
+        else:
+            labels=[]
+            for i in range(len(self.data)):
+                labels.append(self.data[i][self.header[key]])
+            print(key)
+            val=None
+            yval=[]
+            for i in self.head:
+                if(i!=key):
+                    val=i
+                   
+            try:
+                for i in range(len(self.data)):
+                    yval.append(float(self.data[i][self.header[val]]))
+                
+            except:
+                print("value is not number")
+                return 
+            
+            y=np.array(yval)
+            x = np.arange(len(labels))
+            width = 0.35 # the width of the bars
+
+            fig, ax = plt.subplots()
+
+            ax.set_ylabel(val)
+            ax.set_title(key)
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
+
+                        
+            pps = ax.bar(x - width/2,yval, width)
+            for p in pps:
+                height = p.get_height()
+                ax.annotate('{}'.format(height),
+                    xy=(p.get_x() + p.get_width() / 2, height),
+                    xytext=(0, 3), # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+            plt.show()
+
+
+
+
+
 
     
 
@@ -179,7 +259,9 @@ class table:
             print()
 
         print()
-        
+
+
+
 
 class tablecsv(table):
     def __init__(self, filepath) -> None:
@@ -205,7 +287,7 @@ class join_methods:
             for i in t2.head:
                 new_head.append(str(r2)+"."+str(i))
 
-            print(new_head)
+            #print(new_head)
             rows=[]
             for i in range(len(t1.data)):
                 for j in range(len(t2.data)):
@@ -217,6 +299,12 @@ class join_methods:
 
     def natural_join(in1,in2):
         pass
+
+
+
+
+
+
 
 
 

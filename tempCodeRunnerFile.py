@@ -1,2 +1,1 @@
-
-for row in csvreader:
+gb.pie_plot("YEAR")
